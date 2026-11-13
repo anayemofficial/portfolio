@@ -108,6 +108,7 @@ export function Footer() {
         <div className="flex items-center gap-6 font-mono text-[11px]">
           <a href="#about" className="hover:text-indigo-400 transition-colors">About</a>
           <a href="#projects" className="hover:text-indigo-400 transition-colors">Projects</a>
+          <a href="#blog" className="hover:text-indigo-400 transition-colors">Blog</a>
           <a href="#contact" className="hover:text-indigo-400 transition-colors">Contact</a>
         </div>
       </div>

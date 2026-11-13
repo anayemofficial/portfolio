@@ -47,7 +47,9 @@ export interface TimelineItem {
 export interface Certification {
   title: string;
   issuer: string;
+  date?: string;
   description?: string;
+  certificateUrl?: string;
 }
 
 export interface LeadershipRole {
@@ -474,8 +476,8 @@ export const portfolioData: PortfolioData = {
       description: 'Completed comprehensive software engineering degree focused on software design paradigms, data science, algorithms, web technologies, and machine learning.',
       highlights: [
         'CGPA: 3.10 / 4.00',
-        'President of Daffodil Kushtia Association',
-        'Active Member of Data Science Lab & Software Engineering Club',
+        'Former President of Daffodil Kushtia Association',
+        'Former Active Member of Data Science Lab & Software Engineering Club',
       ],
       category: 'Education',
     },
@@ -495,6 +497,24 @@ export const portfolioData: PortfolioData = {
       institutionOrContext: 'Police Lines School & College, Kushtia (GPA: 4.83 / 5.00)',
       description: 'Strong foundation in secondary science studies and computer science fundamentals.',
       highlights: ['GPA: 4.83 / 5.00'],
+      category: 'Education',
+    },
+    {
+      id: 'jsc-education',
+      period: '2015',
+      title: 'Junior School Certificate (JSC)',
+      institutionOrContext: 'Police Lines School & College, Kushtia (GPA: 5.00 / 5.00)',
+      description: 'Graduated junior secondary with top academic distinction and perfect GPA.',
+      highlights: ['GPA: 5.00 / 5.00', 'Academic Distinction'],
+      category: 'Education',
+    },
+    {
+      id: 'psc-education',
+      period: '2012',
+      title: 'Primary School Certificate (PSC)',
+      institutionOrContext: 'Primary Education Board, Kushtia (GPA: 5.00 / 5.00)',
+      description: 'Completed primary education curriculum with perfect GPA distinction.',
+      highlights: ['GPA: 5.00 / 5.00', 'Perfect Score'],
       category: 'Education',
     },
     {
@@ -532,6 +552,18 @@ export const portfolioData: PortfolioData = {
         period: '2018',
         result: 'GPA: 4.83 / 5.00',
       },
+      {
+        title: 'Junior School Certificate (JSC)',
+        institution: 'Police Lines School & College, Kushtia',
+        period: '2015',
+        result: 'GPA: 5.00 / 5.00',
+      },
+      {
+        title: 'Primary School Certificate (PSC)',
+        institution: 'Primary Education Board, Kushtia',
+        period: '2012',
+        result: 'GPA: 5.00 / 5.00',
+      },
     ],
     focusAreas: [
       'Software Architecture & System Engineering',
@@ -545,6 +577,18 @@ export const portfolioData: PortfolioData = {
   },
 
   certifications: [
+    {
+      title: '37th National Science & IT Project Exhibition',
+      issuer: 'District Administration, Kushtia & Ministry of Science and Technology',
+      date: '2016',
+      description: 'Award of recognition for presenting an innovative science and technology project at the 37th National Science & IT Week Fair.',
+    },
+    {
+      title: '3rd Inter-School Letter Festival (Chithi Utshab)',
+      issuer: 'Bangladesh Rural Journalist Society (BRJS) & Kushtia Journalists Union',
+      date: '2015',
+      description: 'Certificate of excellence representing Police Lines School & College in creative writing and journalism at the Kangal Harinath Memorial Festival.',
+    },
     {
       title: 'Data Analysis with Python',
       issuer: 'Cognitive Class — IBM',
@@ -574,15 +618,15 @@ export const portfolioData: PortfolioData = {
 
   leadership: [
     {
-      role: 'President',
+      role: 'Former President',
       organization: 'Daffodil Kushtia Association — Daffodil International University',
     },
     {
-      role: 'Active Member',
+      role: 'Former Active Member',
       organization: 'Data Science Lab — Daffodil International University',
     },
     {
-      role: 'Active Member',
+      role: 'Former Active Member',
       organization: 'Software Engineering Club — Daffodil International University',
     },
   ],

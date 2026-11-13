@@ -23,7 +23,7 @@ export function Education() {
         </div>
 
         {/* 1. Education Degrees Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {education.degrees.map((deg, idx) => (
             <motion.div
               key={deg.title}
@@ -72,16 +72,25 @@ export function Education() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="p-5 rounded-xl glass-card border border-white/10 hover:border-indigo-500/30 transition-all flex flex-col justify-between"
+                className="p-5 rounded-xl glass-card border border-white/10 hover:border-indigo-500/30 transition-all flex flex-col justify-between group"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      Certified
-                    </span>
-                    <Award className="w-4 h-4 text-amber-400" />
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        {cert.date ? 'Achievement' : 'Certified'}
+                      </span>
+                      {cert.date && (
+                        <span className="text-[10px] font-mono text-indigo-300 px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20">
+                          {cert.date}
+                        </span>
+                      )}
+                    </div>
+                    <Award className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
                   </div>
-                  <h4 className="text-sm font-bold text-white mb-1">{cert.title}</h4>
+                  <h4 className="text-sm font-bold text-white mb-1 group-hover:text-indigo-300 transition-colors">
+                    {cert.title}
+                  </h4>
                   <p className="text-xs text-indigo-400 font-mono mb-2">{cert.issuer}</p>
                   {cert.description && (
                     <p className="text-xs text-slate-400 leading-relaxed">{cert.description}</p>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Code2, ArrowUpRight } from 'lucide-react';
+import { Menu, X, Code2, ArrowUpRight, BookOpen, ArrowLeft } from 'lucide-react';
 import { portfolioData } from '@/data/portfolioData';
 
 const navItems = [
@@ -11,15 +11,20 @@ const navItems = [
   { label: 'Projects', href: '#projects' },
   { label: 'Services', href: '#services' },
   { label: 'Education', href: '#education' },
-  { label: 'Contact', href: '#contact' },
 ];
 
-export function Navbar() {
+interface NavbarProps {
+  isBlogPage?: boolean;
+}
+
+export function Navbar({ isBlogPage = false }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
+  const [activeSection, setActiveSection] = useState(isBlogPage ? 'blog' : 'home');
 
   useEffect(() => {
+    if (isBlogPage) return;
+
     const handleScroll = () => {
       if (window.scrollY > 20) {
         setScrolled(true);
@@ -46,13 +51,20 @@ export function Navbar() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isBlogPage]);
+
+  const resolveHref = (href: string) => {
+    if (isBlogPage && href.startsWith('#')) {
+      return `/${href}`;
+    }
+    return href;
+  };
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-[#090d16]/80 backdrop-blur-md border-b border-white/10 py-3 shadow-xl'
+        scrolled || isBlogPage
+          ? 'bg-[#090d16]/85 backdrop-blur-md border-b border-white/10 py-3 shadow-xl'
           : 'bg-transparent py-5'
       }`}
     >
@@ -60,7 +72,7 @@ export function Navbar() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <a
-            href="#home"
+            href={isBlogPage ? '/' : '#home'}
             className="flex items-center gap-2.5 group transition-transform duration-200 hover:scale-105"
           >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-sky-500 to-emerald-400 p-[1px] shadow-lg shadow-indigo-500/20">
@@ -78,50 +90,79 @@ export function Navbar() {
             </div>
           </a>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 glass-panel px-4 py-1.5 rounded-full border border-white/10 shadow-inner">
-            {navItems.map((item) => {
-              const isActive = activeSection === item.href.substring(1);
-              return (
+          {/* When on Blog page, keep header ultra clean with just a Back to Portfolio button */}
+          {isBlogPage ? (
+            <div className="flex items-center gap-3">
+              <a
+                href="/"
+                className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-200 bg-slate-900/80 hover:bg-slate-800 border border-white/10 hover:border-indigo-500/40 rounded-xl transition-all shadow-sm active:scale-95 group"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 text-indigo-400 group-hover:-translate-x-1 transition-transform" />
+                <span>Back to Portfolio</span>
+              </a>
+            </div>
+          ) : (
+            <>
+              {/* Desktop Navigation Links */}
+              <nav className="hidden md:flex items-center gap-1 glass-panel px-4 py-1.5 rounded-full border border-white/10 shadow-inner">
+                {navItems.map((item) => {
+                  const isActive = activeSection === item.href.substring(1);
+                  return (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      className={`px-3.5 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
+                        isActive
+                          ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 shadow-sm'
+                          : 'text-slate-300 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      {item.label}
+                    </a>
+                  );
+                })}
+              </nav>
+
+              {/* CTA Buttons: Separate Blog Button + Let's Talk */}
+              <div className="hidden md:flex items-center gap-2.5">
+                {/* Separate Blog Button */}
                 <a
-                  key={item.label}
-                  href={item.href}
-                  className={`px-3.5 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
-                    isActive
-                      ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 shadow-sm'
-                      : 'text-slate-300 hover:text-white hover:bg-white/5'
-                  }`}
+                  href="/blog"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 hover:border-indigo-500/50 hover:shadow-indigo-500/20 transition-all duration-200 active:scale-95 shadow-sm"
+                  title="Open Daily Blog & Thoughts"
                 >
-                  {item.label}
+                  <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Blog</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
                 </a>
-              );
-            })}
-          </nav>
 
-          {/* CTA Button */}
-          <div className="hidden md:flex items-center gap-3">
-            <a
-              href="#contact"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-indigo-600 to-sky-600 rounded-lg hover:from-indigo-500 hover:to-sky-500 shadow-md shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all duration-200 active:scale-95"
-            >
-              <span>Let's Talk</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </a>
-          </div>
+                {/* Let's Talk Button */}
+                <a
+                  href="#contact"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-indigo-600 to-sky-600 rounded-lg hover:from-indigo-500 hover:to-sky-500 shadow-md shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all duration-200 active:scale-95"
+                >
+                  <span>Let's Talk</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
 
-          {/* Mobile Menu Toggle Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg bg-slate-900/80 border border-white/10 text-slate-300 hover:text-white focus:outline-none"
-            aria-label="Toggle Navigation Menu"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+              {/* Mobile Menu Toggle Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg bg-slate-900/80 border border-white/10 text-slate-300 hover:text-white focus:outline-none"
+                aria-label="Toggle Navigation Menu"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
-      {mobileMenuOpen && (
+      {/* Mobile Menu Overlay for Home page */}
+      {!isBlogPage && mobileMenuOpen && (
         <div className="md:hidden fixed inset-x-0 top-[65px] bg-[#090d16]/95 backdrop-blur-xl border-b border-white/10 px-6 py-6 transition-all duration-300 shadow-2xl">
           <div className="flex flex-col gap-3">
             {navItems.map((item) => (
@@ -134,7 +175,23 @@ export function Navbar() {
                 {item.label}
               </a>
             ))}
-            <div className="pt-4 border-t border-white/10 mt-2">
+
+            {/* Mobile Action Buttons */}
+            <div className="pt-4 border-t border-white/10 mt-2 flex flex-col gap-2.5">
+              {/* Separate Mobile Blog Button */}
+              <a
+                href="/blog"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-xl border transition-colors bg-indigo-600/15 text-indigo-300 border-indigo-500/30 hover:bg-indigo-600/25"
+              >
+                <BookOpen className="w-4 h-4 text-indigo-400" />
+                <span>Daily Blog & Thoughts</span>
+                <ArrowUpRight className="w-4 h-4 opacity-70" />
+              </a>
+
+              {/* Mobile Let's Talk Button */}
               <a
                 href="#contact"
                 onClick={() => setMobileMenuOpen(false)}
