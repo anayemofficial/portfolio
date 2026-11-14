@@ -12,12 +12,14 @@ export function Projects() {
   const [selectedFilter, setSelectedFilter] = useState<string>('All');
   const [activeModalProject, setActiveModalProject] = useState<Project | null>(null);
 
-  const categories = ['All', 'Full-Stack', 'AI / Data Science', 'Concept'];
+  const categories = ['All', 'Full-Stack', 'AI / Data Science', 'Academic Research', 'Concept'];
 
   const filteredProjects =
     selectedFilter === 'All'
       ? projects
-      : projects.filter((p) => p.category === selectedFilter);
+    : selectedFilter === 'Academic Research'
+    ? projects.filter((p) => p.projectType === 'Academic Research' || (p.category as string) === 'Academic Research')
+    : projects.filter((p) => p.category === selectedFilter);
 
   const getStatusBadge = (status: Project['currentStatus']) => {
     switch (status) {
@@ -117,9 +119,22 @@ export function Projects() {
 
                 {/* Header Category & Status Badge */}
                 <div className="p-6 pb-4 border-b border-white/5 flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded bg-indigo-950/80 text-indigo-300 border border-indigo-500/30">
-                    {project.category}
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded bg-indigo-950/80 text-indigo-300 border border-indigo-500/30">
+                      {project.category}
+                    </span>
+                    {project.projectType && (
+                      <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded border ${
+                        project.projectType === 'Client Project'
+                          ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
+                          : project.projectType === 'Personal Project'
+                          ? 'bg-sky-950/80 text-sky-300 border-sky-500/40'
+                          : 'bg-purple-950/80 text-purple-300 border-purple-500/40'
+                      }`}>
+                        {project.projectType}
+                      </span>
+                    )}
+                  </div>
                   
                   {/* Status Badge */}
                   {getStatusBadge(project.currentStatus)}

@@ -19,6 +19,13 @@ export function GithubSection() {
       isFlagship: true,
     },
     {
+      name: 'portfolio',
+      description: 'Personal portfolio and PostgreSQL-backed micro-blog built with Next.js 16, React 19, Supabase, and Redis.',
+      language: 'TypeScript / Next.js',
+      status: 'Live Platform',
+      link: `${socials.github}/portfolio`,
+    },
+    {
       name: 'Sketch2Design-AI',
       description: 'Generative AI-powered sketch-to-UI conversion engine built with React, TypeScript, Vite, and Vision AI.',
       language: 'TypeScript / Vite',

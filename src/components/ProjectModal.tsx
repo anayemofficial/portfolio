@@ -88,10 +88,21 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
         >
           {/* Sticky Modal Header */}
           <div className="sticky top-0 bg-slate-900/90 backdrop-blur-md px-6 py-4 border-b border-white/10 flex items-center justify-between z-20">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="px-2.5 py-1 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-mono font-semibold">
                 {project.category}
               </span>
+              {project.projectType && (
+                <span className={`px-2.5 py-1 rounded text-xs font-mono font-semibold border ${
+                  project.projectType === 'Client Project'
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                    : project.projectType === 'Personal Project'
+                    ? 'bg-sky-500/20 text-sky-300 border-sky-500/40'
+                    : 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                }`}>
+                  {project.projectType}
+                </span>
+              )}
               {renderModalStatusBadge(project.currentStatus)}
               <h3 className="text-xl font-bold text-white tracking-tight hidden sm:block">{project.title}</h3>
             </div>

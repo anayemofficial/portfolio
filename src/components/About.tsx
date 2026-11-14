@@ -89,7 +89,7 @@ export function About() {
                 My background bridges the gap between modern full-stack web engineering and data science. I enjoy turning complex ideas into intuitive, scalable software—ranging from high-speed frontend interfaces and RESTful backend architectures to predictive machine-learning pipelines and computer vision systems.
               </p>
               <p>
-                I prioritize writing clean, maintainable code, building secure database systems, and solving practical real-world problems. Whether building full-stack platforms like MADX.BD and PhotoHub or researching AI classification models, I bring a product-first engineering mindset to every endeavor.
+                I prioritize writing clean, maintainable code, building secure database systems, and solving practical real-world problems. Whether building commercial web platforms like MADX and Krishi Gold or researching AI classification models, I bring a product-first engineering mindset to every endeavor.
               </p>
             </div>
 

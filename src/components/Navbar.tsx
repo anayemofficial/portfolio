@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Code2, ArrowUpRight, BookOpen, ArrowLeft } from 'lucide-react';
+import { Menu, X, Code2, ArrowUpRight, BookOpen, ArrowLeft, FileText } from 'lucide-react';
 import { portfolioData } from '@/data/portfolioData';
 
 const navItems = [
@@ -123,8 +123,21 @@ export function Navbar({ isBlogPage = false }: NavbarProps) {
                 })}
               </nav>
 
-              {/* CTA Buttons: Separate Blog Button + Let's Talk */}
+              {/* CTA Buttons: CV + Blog + Let's Talk */}
               <div className="hidden md:flex items-center gap-2.5">
+                {/* CV / Resume Button */}
+                <a
+                  href="/cv"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg text-slate-200 bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 hover:border-indigo-500/40 hover:text-white transition-all duration-200 active:scale-95 shadow-sm"
+                  title="View Official CV"
+                >
+                  <FileText className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>CV</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
+                </a>
+
                 {/* Separate Blog Button */}
                 <a
                   href="/blog"
@@ -178,6 +191,19 @@ export function Navbar({ isBlogPage = false }: NavbarProps) {
 
             {/* Mobile Action Buttons */}
             <div className="pt-4 border-t border-white/10 mt-2 flex flex-col gap-2.5">
+              {/* Mobile CV Button */}
+              <a
+                href="/cv"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-xl border transition-colors bg-slate-800/90 text-slate-200 border-white/10 hover:bg-slate-700 hover:text-white"
+              >
+                <FileText className="w-4 h-4 text-indigo-400" />
+                <span>View Official CV</span>
+                <ArrowUpRight className="w-4 h-4 opacity-70" />
+              </a>
+
               {/* Separate Mobile Blog Button */}
               <a
                 href="/blog"
