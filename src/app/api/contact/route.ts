@@ -55,62 +55,107 @@ export async function POST(request: Request) {
     const { name, email, subject, message } = validation.data;
 
     // 4. Secure server-side dispatch to external email gateways
-    const web3formsAccessKey = process.env.WEB3FORMS_ACCESS_KEY;
-    const resendApiKey = process.env.RESEND_API_KEY;
+    const web3formsAccessKey = process.env.WEB3FORMS_ACCESS_KEY?.trim();
+    const resendApiKey = process.env.RESEND_API_KEY?.trim();
+    const isProd = process.env.NODE_ENV === 'production';
 
-    if (web3formsAccessKey && web3formsAccessKey.trim() !== '') {
-      const formData = new FormData();
-      formData.append('access_key', web3formsAccessKey.trim());
-      formData.append('name', name);
-      formData.append('email', email);
-      formData.append('subject', `[Portfolio Inquiry] ${subject}`);
-      formData.append('message', message);
-      formData.append('from_name', name);
+    // In production, strictly reject submission if no email provider is configured
+    if (!web3formsAccessKey && !resendApiKey) {
+      if (isProd) {
+        console.error('[CONTACT SERVICE ERROR] No email service provider (WEB3FORMS_ACCESS_KEY or RESEND_API_KEY) configured in production.');
+        return NextResponse.json(
+          { error: 'Contact service is temporarily unavailable. Please email anayem.official@gmail.com directly.' },
+          { status: 503 }
+        );
+      }
 
-      const res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        body: formData,
+      // Local development fallback: do not log private message or email contents
+      console.log('[DEV] Contact form submitted in development mode (no email provider configured).');
+      return NextResponse.json({
+        success: true,
+        message: 'Your message has been received! Thank you for reaching out.',
       });
+    }
 
-      const resText = await res.text();
-      let data: { success?: boolean; message?: string } = {};
+    if (web3formsAccessKey) {
       try {
-        data = JSON.parse(resText);
-      } catch {
-        console.error('Web3Forms returned non-JSON text response.');
-        throw new Error('Web3Forms API returned invalid response format.');
-      }
+        const formData = new FormData();
+        formData.append('access_key', web3formsAccessKey);
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('subject', `[Portfolio Inquiry] ${subject}`);
+        formData.append('message', message);
+        formData.append('from_name', name);
 
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Web3Forms submission failed.');
-      }
-    } else if (resendApiKey && resendApiKey.trim() !== '') {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey.trim()}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Portfolio Contact <onboarding@resend.dev>',
-          to: 'anayem.official@gmail.com',
-          reply_to: email,
-          subject: `[Portfolio Inquiry] ${subject}`,
-          text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
-        }),
-      });
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: formData,
+        });
 
-      if (!res.ok) {
-        const errData = (await res.json().catch(() => ({}))) as { message?: string };
-        throw new Error(errData.message || 'Failed to dispatch via Resend API.');
+        const resText = await res.text();
+        let data: { success?: boolean; message?: string } = {};
+        try {
+          data = JSON.parse(resText);
+        } catch {
+          console.error('Web3Forms returned non-JSON text response.');
+          return NextResponse.json(
+            { error: 'Unable to deliver message at this time. Please try again later.' },
+            { status: 502 }
+          );
+        }
+
+        if (!res.ok || !data.success) {
+          console.error('Web3Forms submission failed:', data.message || `HTTP ${res.status}`);
+          return NextResponse.json(
+            { error: data.message || 'Email delivery provider failed to process message.' },
+            { status: 502 }
+          );
+        }
+      } catch (netErr: unknown) {
+        console.error('Web3Forms network dispatch error:', netErr instanceof Error ? netErr.message : 'Network error');
+        return NextResponse.json(
+          { error: 'Network error connecting to email delivery service. Please try again later.' },
+          { status: 502 }
+        );
       }
-    } else {
-      // Local development fallback
-      console.log('--- NEW CONTACT FORM SUBMISSION (Server Console) ---');
-      console.log(`From: ${name} (${email})`);
-      console.log(`Subject: ${subject}`);
-      console.log(`Message:\n${message}`);
-      console.log('----------------------------------------------------');
+    } else if (resendApiKey) {
+      try {
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'Portfolio Contact <onboarding@resend.dev>',
+            to: 'anayem.official@gmail.com',
+            reply_to: email,
+            subject: `[Portfolio Inquiry] ${subject}`,
+            text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+          }),
+        });
+
+        let resData: { message?: string } = {};
+        try {
+          resData = await res.json();
+        } catch {
+          // Non-JSON response
+        }
+
+        if (!res.ok) {
+          console.error('Resend dispatch failed with status:', res.status, resData.message || '');
+          return NextResponse.json(
+            { error: resData.message || 'Email delivery provider failed to dispatch message.' },
+            { status: 502 }
+          );
+        }
+      } catch (netErr: unknown) {
+        console.error('Resend network dispatch error:', netErr instanceof Error ? netErr.message : 'Network error');
+        return NextResponse.json(
+          { error: 'Network error connecting to email delivery service. Please try again later.' },
+          { status: 502 }
+        );
+      }
     }
 
     return NextResponse.json({

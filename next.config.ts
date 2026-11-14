@@ -50,6 +50,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    cpus: 2,
+  },
   async headers() {
     return [
       {
