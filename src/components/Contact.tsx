@@ -6,9 +6,6 @@ import { Mail, Briefcase, Send, CheckCircle2, Copy, AlertCircle, ExternalLink } 
 import { GithubIcon, LinkedinIcon, FacebookIcon, InstagramIcon, PhoneIcon } from '@/components/Icons';
 import { portfolioData } from '@/data/portfolioData';
 
-// Public Web3Forms Key
-const WEB3FORMS_KEY = '0501ba1f-1e89-4640-a7eb-e841b31d8f0a';
-
 export function Contact() {
   const { socials } = portfolioData.personal;
   const [formData, setFormData] = useState({
@@ -29,27 +26,19 @@ export function Contact() {
     setErrorMessage('');
 
     try {
-      // Submit directly from the browser to Web3Forms (bypasses server Cloudflare challenge)
-      const response = await fetch('https://api.web3forms.com/submit', {
+      // Secure server-side submission (keeps API keys protected server-side)
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_KEY,
-          name: formData.name,
-          email: formData.email,
-          subject: `[Portfolio Inquiry] ${formData.subject}`,
-          message: formData.message,
-          from_name: formData.name,
-        }),
+        body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Web3Forms failed to submit your message.');
+        throw new Error(data.error || 'Failed to submit your message. Please try again.');
       }
 
       setSubmitted(true);

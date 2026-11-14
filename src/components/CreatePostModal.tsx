@@ -13,13 +13,17 @@ import {
   Trash2,
   Globe,
   Lock,
+  Edit3,
 } from 'lucide-react';
 import { BlogPost, BlogCategory, BlogMood } from '@/data/initialBlogs';
 
 interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onPostCreated: (newPost: BlogPost) => void;
+  onPostCreated?: (newPost: BlogPost) => void;
+  onPostUpdated?: (updatedPost: BlogPost) => void;
+  postToEdit?: BlogPost | null;
+  csrfToken?: string;
 }
 
 const MOODS: BlogMood[] = [
@@ -42,37 +46,68 @@ const CATEGORIES: BlogCategory[] = [
   'Career & Journey',
 ];
 
-export function CreatePostModal({ isOpen, onClose, onPostCreated }: CreatePostModalProps) {
+export function CreatePostModal({
+  isOpen,
+  onClose,
+  onPostCreated,
+  onPostUpdated,
+  postToEdit,
+  csrfToken,
+}: CreatePostModalProps) {
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<BlogCategory>('Daily Life Updates');
   const [mood, setMood] = useState<BlogMood>('☕ Daily Life');
   const [coverImage, setCoverImage] = useState<string>('');
   const [isPrivate, setIsPrivate] = useState<boolean>(false);
-  const [authorAvatar, setAuthorAvatar] = useState<string>('/profile.jpg');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const [authorAvatar, setAuthorAvatar] = useState('/profile.jpg');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const isEditMode = Boolean(postToEdit);
+
   useEffect(() => {
-    if (isOpen) {
-      setErrorMessage('');
-      const savedAvatar = localStorage.getItem('nayem_author_avatar');
-      if (savedAvatar) {
-        setAuthorAvatar(savedAvatar);
-      }
+    const saved = localStorage.getItem('nayem_author_avatar');
+    if (saved) {
+      setAuthorAvatar(saved);
     }
-  }, [isOpen]);
+  }, []);
+
+  useEffect(() => {
+    if (postToEdit) {
+      setTitle(postToEdit.title || '');
+      setContent(postToEdit.content || '');
+      setCategory(postToEdit.category || 'Daily Life Updates');
+      setMood(postToEdit.mood || '☕ Daily Life');
+      setCoverImage(postToEdit.coverImage || '');
+      setIsPrivate(Boolean(postToEdit.isPrivate));
+      setErrorMessage('');
+    } else {
+      setContent('');
+      setTitle('');
+      setCategory('Daily Life Updates');
+      setMood('☕ Daily Life');
+      setCoverImage('');
+      setIsPrivate(false);
+      setErrorMessage('');
+    }
+  }, [postToEdit, isOpen]);
 
   if (!isOpen) return null;
 
-  // File upload from PC (instant local FileReader preview)
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      setErrorMessage('Image size too large. Please select a photo under 10MB.');
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Please select a valid image file (PNG, JPG, WebP).');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('Image size is too large (maximum allowed is 5MB).');
       return;
     }
 
@@ -104,41 +139,58 @@ export function CreatePostModal({ isOpen, onClose, onPostCreated }: CreatePostMo
 
     setIsSubmitting(true);
 
-    // If user didn't enter a custom title, automatically generate one from the first sentence
     const autoTitle =
       title.trim() ||
       content.trim().split('\n')[0].slice(0, 70) ||
       `${mood} - ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 
-    const passcode = localStorage.getItem('nayem_author_passcode') || 'nayem2026';
-
     try {
+      const bodyPayload = isEditMode
+        ? {
+            id: postToEdit!.id,
+            title: autoTitle,
+            category,
+            mood,
+            content: content.trim(),
+            coverImage: coverImage || null,
+            tags: [category, mood.replace(/^[^\s]+\s/, '')],
+            isPrivate,
+          }
+        : {
+            title: autoTitle,
+            category,
+            mood,
+            content: content.trim(),
+            coverImage: coverImage || undefined,
+            tags: [category, mood.replace(/^[^\s]+\s/, '')],
+            isPrivate,
+            authorAvatar,
+          };
+
       const res = await fetch('/api/blog', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: autoTitle,
-          category,
-          mood,
-          content: content.trim(),
-          coverImage: coverImage || undefined,
-          tags: [category, mood.replace(/^[^\s]+\s/, '')],
-          passcode,
-          isPrivate,
-          authorAvatar,
-        }),
+        method: isEditMode ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken || '',
+        },
+        body: JSON.stringify(bodyPayload),
       });
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to publish post');
+        throw new Error(data.error || `Failed to ${isEditMode ? 'update' : 'publish'} post`);
+      }
+
+      if (isEditMode && onPostUpdated) {
+        onPostUpdated(data.post);
+      } else if (!isEditMode && onPostCreated) {
+        onPostCreated(data.post);
       }
 
       // Reset form
       setContent('');
       setTitle('');
       setCoverImage('');
-      onPostCreated(data.post);
       onClose();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error publishing post';
@@ -171,8 +223,17 @@ export function CreatePostModal({ isOpen, onClose, onPostCreated }: CreatePostMo
           {/* Header */}
           <div className="px-5 py-3.5 border-b border-white/10 flex items-center justify-between bg-slate-900/90">
             <h3 className="text-sm sm:text-base font-bold text-white tracking-tight flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
-              <span>Create Post & Daily Update</span>
+              {isEditMode ? (
+                <>
+                  <Edit3 className="w-4 h-4 text-sky-400" />
+                  <span>Edit Post & Update</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 text-indigo-400" />
+                  <span>Create Post & Daily Update</span>
+                </>
+              )}
             </h3>
             <button
               onClick={onClose}
@@ -257,44 +318,39 @@ export function CreatePostModal({ isOpen, onClose, onPostCreated }: CreatePostMo
               </div>
             </div>
 
-            {/* Optional Title input */}
-            <div>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Headline or Title (Optional - auto-generates if empty)"
-                className="w-full px-3 py-2 rounded-xl bg-slate-950/60 border border-white/5 text-white placeholder-slate-500 text-xs font-mono focus:outline-none focus:border-indigo-500"
-              />
-            </div>
+            {/* Optional Title Input */}
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Post title or headline (optional)..."
+              className="w-full px-4 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 font-medium"
+            />
 
-            {/* Main Text Area (Facebook-style) */}
-            <div>
-              <textarea
-                rows={5}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="What's on your mind today, Abdullah? Share your daily update, political thought, feeling, project milestone, or code progress..."
-                className="w-full px-3 py-2 rounded-xl bg-transparent border-0 text-white placeholder-slate-500 text-sm sm:text-base focus:outline-none leading-relaxed resize-none"
-                autoFocus
-              />
-            </div>
+            {/* Textarea for Content */}
+            <textarea
+              rows={5}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="What's on your mind? Share thoughts, code learnings, political reflections, or updates..."
+              className="w-full px-4 py-3 rounded-xl bg-slate-950/80 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 leading-relaxed resize-y"
+            />
 
-            {/* Photo Preview Box (If a photo is uploaded from PC) */}
+            {/* Attached Photo Preview */}
             {coverImage && (
-              <div className="relative rounded-xl overflow-hidden border border-white/10 max-h-64 bg-slate-950 group">
+              <div className="relative rounded-xl overflow-hidden border border-white/10 max-h-60 bg-black/40 group">
                 <img
                   src={coverImage}
-                  alt="Upload preview"
-                  className="w-full h-full object-cover max-h-64"
+                  alt="Post attachment"
+                  className="w-full h-full object-cover max-h-60"
                 />
                 <button
                   type="button"
                   onClick={handleRemovePhoto}
-                  className="absolute top-2 right-2 p-1.5 rounded-full bg-black/70 hover:bg-rose-600 text-white transition-colors shadow-lg"
-                  title="Remove photo"
+                  className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-900/80 text-rose-400 hover:text-rose-300 hover:bg-slate-900 border border-white/10 transition-colors"
+                  title="Remove attached photo"
                 >
-                  <X className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             )}
@@ -308,7 +364,7 @@ export function CreatePostModal({ isOpen, onClose, onPostCreated }: CreatePostMo
               className="hidden"
             />
 
-            {/* Bottom Action Bar: Add Photo button & Post button */}
+            {/* Bottom Action Bar: Add Photo button & Submit button */}
             <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-3">
               <button
                 type="button"
@@ -329,11 +385,11 @@ export function CreatePostModal({ isOpen, onClose, onPostCreated }: CreatePostMo
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-sky-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-40 active:scale-95"
               >
                 {isSubmitting ? (
-                  <span>Publishing...</span>
+                  <span>{isEditMode ? 'Saving...' : 'Publishing...'}</span>
                 ) : (
                   <>
                     <Send className="w-3.5 h-3.5" />
-                    <span>Post</span>
+                    <span>{isEditMode ? 'Save Changes' : 'Post'}</span>
                   </>
                 )}
               </button>

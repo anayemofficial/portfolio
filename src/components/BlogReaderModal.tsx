@@ -8,12 +8,12 @@ import {
   MessageSquare,
   Calendar,
   Clock,
-  User,
   Send,
   CheckCircle2,
   Share2,
   Tag,
   Mail,
+  Trash2,
 } from 'lucide-react';
 import { BlogPost, BlogComment } from '@/data/initialBlogs';
 import { ShareButtons } from './ShareButtons';
@@ -23,6 +23,9 @@ interface BlogReaderModalProps {
   onClose: () => void;
   onLikeUpdated: (postId: string, newLikes: number) => void;
   onCommentAdded: (postId: string, newComment: BlogComment) => void;
+  onCommentDeleted?: (postId: string, commentId: string) => void;
+  isAuthor?: boolean;
+  csrfToken?: string;
 }
 
 export function BlogReaderModal({
@@ -30,6 +33,9 @@ export function BlogReaderModal({
   onClose,
   onLikeUpdated,
   onCommentAdded,
+  onCommentDeleted,
+  isAuthor,
+  csrfToken,
 }: BlogReaderModalProps) {
   const [likes, setLikes] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
@@ -43,6 +49,7 @@ export function BlogReaderModal({
   const [commentError, setCommentError] = useState('');
   const [commentSuccess, setCommentSuccess] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
 
   // Sync state when post changes
   useEffect(() => {
@@ -79,21 +86,34 @@ export function BlogReaderModal({
     if (isLiking) return;
     setIsLiking(true);
 
+    const previousLikes = likes;
     const newLikeCount = likes + 1;
     setLikes(newLikeCount);
     setHasLiked(true);
-    localStorage.setItem(`nayem_blog_liked_${post.id}`, 'true');
     onLikeUpdated(post.id, newLikeCount);
 
     try {
       const res = await fetch(`/api/blog/${post.id}/like`, { method: 'POST' });
       const data = await res.json();
-      if (data.success && typeof data.likes === 'number') {
+      if (res.ok && data.success && typeof data.likes === 'number') {
         setLikes(data.likes);
         onLikeUpdated(post.id, data.likes);
+        localStorage.setItem(`nayem_blog_liked_${post.id}`, 'true');
+      } else {
+        // Revert on failure or duplicate
+        setLikes(data.likes ?? previousLikes);
+        onLikeUpdated(post.id, data.likes ?? previousLikes);
+        if (!data.alreadyLiked) {
+          setHasLiked(false);
+          localStorage.removeItem(`nayem_blog_liked_${post.id}`);
+        }
       }
     } catch (err) {
-      console.warn('Could not sync like to server, retained locally:', err);
+      console.warn('Could not sync like to server, reverting:', err);
+      setLikes(previousLikes);
+      onLikeUpdated(post.id, previousLikes);
+      setHasLiked(false);
+      localStorage.removeItem(`nayem_blog_liked_${post.id}`);
     } finally {
       setIsLiking(false);
     }
@@ -150,13 +170,37 @@ export function BlogReaderModal({
       setTimeout(() => setCommentSuccess(false), 4000);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error submitting comment';
-      // Fallback: save comment locally so viewer sees their comment immediately
-      onCommentAdded(post.id, tempComment);
-      setCommentText('');
-      setCommentSuccess(true);
-      setCommentError(msg + ' (Saved locally)');
+      setCommentError(msg);
     } finally {
       setIsSubmittingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!window.confirm('Are you sure you want to delete this comment?')) return;
+    setDeletingCommentId(commentId);
+    try {
+      const res = await fetch(
+        `/api/blog/${post.id}/comment?commentId=${encodeURIComponent(commentId)}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'x-csrf-token': csrfToken || '',
+          },
+        }
+      );
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (onCommentDeleted) {
+          onCommentDeleted(post.id, commentId);
+        }
+      } else {
+        alert(data.error || 'Failed to delete comment');
+      }
+    } catch {
+      alert('Error connecting to server to delete comment');
+    } finally {
+      setDeletingCommentId(null);
     }
   };
 
@@ -557,9 +601,21 @@ export function BlogReaderModal({
                           </div>
                         </div>
 
-                        <span className="text-[11px] font-mono text-slate-500">
-                          {comment.createdAt}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-mono text-slate-500">
+                            {comment.createdAt}
+                          </span>
+                          {isAuthor && (
+                            <button
+                              onClick={() => handleDeleteComment(comment.id)}
+                              disabled={deletingCommentId === comment.id}
+                              className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+                              title="Delete Comment (Admin)"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       <p className="text-xs text-slate-300 pl-10 leading-relaxed">

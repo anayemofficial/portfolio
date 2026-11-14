@@ -43,4 +43,6 @@ next-env.d.ts
 # local backups
 src_backup_pre_phase1/
 pre_phase1_backup/
+*.backup.json
+
 
