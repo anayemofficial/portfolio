@@ -5,8 +5,13 @@ import Link from 'next/link';
 import { ArrowUp, Mail, Briefcase, Code2 } from 'lucide-react';
 import { GithubIcon, LinkedinIcon, FacebookIcon, InstagramIcon } from '@/components/Icons';
 import { portfolioData } from '@/data/portfolioData';
+import { ActiveView } from '@/components/Navbar';
 
-export function Footer() {
+interface FooterProps {
+  onViewChange?: (view: ActiveView) => void;
+}
+
+export function Footer({ onViewChange }: FooterProps = {}) {
   const { personal } = portfolioData;
 
   const scrollToTop = () => {
@@ -106,12 +111,66 @@ export function Footer() {
       {/* Copyright */}
       <div className="max-w-7xl mx-auto pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
         <p>© 2026 {personal.name}. All rights reserved.</p>
-        <div className="flex items-center gap-6 font-mono text-[11px]">
-          <Link href="/#about" className="hover:text-indigo-400 transition-colors">About</Link>
-          <Link href="/#projects" className="hover:text-indigo-400 transition-colors">Projects</Link>
-          <Link href="/cv" className="hover:text-indigo-400 transition-colors">CV</Link>
-          <Link href="/blog" className="hover:text-indigo-400 transition-colors">Blog</Link>
-          <Link href="/#contact" className="hover:text-indigo-400 transition-colors">Contact</Link>
+        <div className="flex items-center gap-6 font-mono text-[11px] flex-wrap justify-center">
+          <Link
+            href="/?view=about"
+            onClick={(e) => {
+              if (onViewChange) {
+                e.preventDefault();
+                onViewChange('about');
+              }
+            }}
+            className="hover:text-indigo-400 transition-colors"
+          >
+            About
+          </Link>
+          <Link
+            href="/?view=projects"
+            onClick={(e) => {
+              if (onViewChange) {
+                e.preventDefault();
+                onViewChange('projects');
+              }
+            }}
+            className="hover:text-indigo-400 transition-colors"
+          >
+            Projects
+          </Link>
+          <Link href="/cv" className="hover:text-indigo-400 transition-colors">
+            CV
+          </Link>
+          <Link
+            href="/blog"
+            onClick={(e) => {
+              if (onViewChange) {
+                e.preventDefault();
+                onViewChange('home');
+                setTimeout(() => {
+                  const el =
+                    document.getElementById('blog-feed') ||
+                    document.getElementById('blog-section');
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }, 100);
+              }
+            }}
+            className="hover:text-indigo-400 transition-colors"
+          >
+            Blog
+          </Link>
+          <Link
+            href="/?view=contact"
+            onClick={(e) => {
+              if (onViewChange) {
+                e.preventDefault();
+                onViewChange('contact');
+              }
+            }}
+            className="hover:text-indigo-400 transition-colors"
+          >
+            Contact
+          </Link>
         </div>
       </div>
     </footer>

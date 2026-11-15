@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function BlogPage() {
   return (
-    <main className="relative min-h-screen bg-[#090d16] text-slate-100 overflow-x-hidden selection:bg-indigo-600 selection:text-white pt-20 sm:pt-24 pb-12">
+    <main className="relative min-h-screen bg-[#090d16] text-slate-100 overflow-x-hidden selection:bg-indigo-600 selection:text-white">
       {/* Dynamic Ambient Background */}
       <Background />
 

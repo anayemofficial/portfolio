@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ExternalLink, ArrowRight, Sparkles, CheckCircle2, FlaskConical, Layers, Zap } from 'lucide-react';
+import { ExternalLink, ArrowRight, Sparkles, CheckCircle2, FlaskConical, Layers, Zap, Eye } from 'lucide-react';
 import { GithubIcon } from '@/components/Icons';
 import { portfolioData, Project } from '@/data/portfolioData';
 import { ProjectModal } from './ProjectModal';
@@ -183,19 +184,29 @@ export function Projects() {
 
               {/* Card Footer: Action Buttons */}
               <div className="p-6 pt-0 border-t border-white/5 mt-4 flex items-center justify-between gap-2">
-                <button
-                  onClick={() => setActiveModalProject(project)}
+                <Link
+                  href={`/projects/${project.slug}`}
                   className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg transition-colors ${
                     project.isFlagship
                       ? 'text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-600/20'
                       : 'text-white bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40'
                   }`}
+                  title={`View case study for ${project.title}`}
                 >
                   <span>View Case Study</span>
                   <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                </Link>
 
                 <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveModalProject(project)}
+                    className="p-2 rounded-lg bg-slate-900 border border-white/10 text-slate-400 hover:text-indigo-300 hover:bg-slate-800 transition-colors"
+                    title="Quick Preview Modal"
+                    aria-label={`Quick preview for ${project.title}`}
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
                   {project.githubUrl && (
                     <a
                       href={project.githubUrl}

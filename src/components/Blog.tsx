@@ -44,7 +44,12 @@ const CATEGORIES = [
   'Career & Journey',
 ] as const;
 
-export function Blog() {
+interface BlogProps {
+  heroSection?: React.ReactNode;
+  className?: string;
+}
+
+export function Blog({ heroSection, className }: BlogProps = {}) {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -407,7 +412,11 @@ export function Blog() {
   };
 
   return (
-    <section className="relative w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 font-sans">
+    <section
+      className={`relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 font-sans ${
+        className || 'pt-20 sm:pt-24 pb-12'
+      }`}
+    >
       {/* 1. HERO COVER BANNER */}
       <div className="relative w-full h-48 sm:h-72 md:h-80 rounded-3xl overflow-hidden glass-card border border-white/10 shadow-2xl group">
         <Image
@@ -471,7 +480,7 @@ export function Blog() {
                 </span>
               </div>
               <p className="text-sm text-slate-400 max-w-lg leading-relaxed">
-                Full-Stack Developer & AI Systems Builder • Sharing daily thoughts, tech notes, and life updates.
+                Full-Stack Engineer, AI &amp; Data Science Researcher, Tech Writer &bull; Daily thoughts &amp; tech logs
               </p>
             </div>
           </div>
@@ -509,36 +518,44 @@ export function Blog() {
         </div>
       </div>
 
-      {/* 3. POST FEED & COMPOSER CONTAINER */}
-      <div className="space-y-6">
-        {/* Quick Post Prompt (Facebook Style) */}
-        <div
-          onClick={() => {
-            if (isAuthor) {
-              setIsCreateModalOpen(true);
-            } else {
-              setShowAuthorLoginModal(true);
-            }
-          }}
-          className="p-4 rounded-2xl glass-card border border-white/10 bg-slate-900/80 shadow-xl flex items-center gap-3 cursor-pointer group hover:border-indigo-500/40 transition-all"
-        >
-          <img
-            src={profilePhoto}
-            alt="Author avatar"
-            className="w-10 h-10 rounded-full object-cover border border-indigo-500/40"
-          />
-          <div className="flex-1 px-4 py-2.5 rounded-full bg-slate-950/80 border border-white/10 text-slate-400 text-xs sm:text-sm font-medium flex items-center justify-between group-hover:text-slate-200 transition-colors">
-            <span>What's on your mind today, Nayem?</span>
-            <Sparkles className="w-4 h-4 text-indigo-400" />
-          </div>
-          <button
-            type="button"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-mono group-hover:bg-indigo-600 group-hover:text-white transition-colors"
-          >
-            <ImageIcon className="w-4 h-4" />
-            <span>Photo</span>
-          </button>
+      {/* OPTIONAL HERO SECTION IN THE MIDDLE */}
+      {heroSection && (
+        <div className="pt-2 pb-6 sm:py-8 border-t border-white/5">
+          {heroSection}
         </div>
+      )}
+
+      {/* 3. POST FEED & COMPOSER CONTAINER */}
+      <div
+        id="blog-feed"
+        className={`space-y-6 max-w-5xl mx-auto ${
+          heroSection ? 'pt-6 sm:pt-8 border-t border-white/5' : ''
+        }`}
+      >
+        {/* Author-Only Thought Composer (Visible ONLY to authenticated author) */}
+        {isAuthor && (
+          <div
+            onClick={() => setIsCreateModalOpen(true)}
+            className="p-4 rounded-2xl glass-card border border-white/10 bg-slate-900/80 shadow-xl flex items-center gap-3 cursor-pointer group hover:border-indigo-500/40 transition-all"
+          >
+            <img
+              src={profilePhoto}
+              alt="Author avatar"
+              className="w-10 h-10 rounded-full object-cover border border-indigo-500/40"
+            />
+            <div className="flex-1 px-4 py-2.5 rounded-full bg-slate-950/80 border border-white/10 text-slate-400 text-xs sm:text-sm font-medium flex items-center justify-between group-hover:text-slate-200 transition-colors">
+              <span>What's on your mind today, Nayem?</span>
+              <Sparkles className="w-4 h-4 text-indigo-400" />
+            </div>
+            <button
+              type="button"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-mono group-hover:bg-indigo-600 group-hover:text-white transition-colors"
+            >
+              <ImageIcon className="w-4 h-4" />
+              <span>Photo</span>
+            </button>
+          </div>
+        )}
 
         {/* Filter Bar & Search */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 rounded-2xl glass-card border border-white/10 bg-slate-900/60">
@@ -566,7 +583,7 @@ export function Blog() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search thoughts..."
+              placeholder="Search thoughts, ideas, tech notes..."
               className="w-full pl-9 pr-4 py-1.5 rounded-xl bg-slate-950/80 border border-white/10 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500 font-mono"
             />
           </div>

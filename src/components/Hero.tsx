@@ -5,16 +5,25 @@ import { motion } from 'framer-motion';
 import { ArrowDown, Send, FileText, Mail, Sparkles, Terminal, Code } from 'lucide-react';
 import { GithubIcon, LinkedinIcon, FacebookIcon, InstagramIcon, PhoneIcon } from '@/components/Icons';
 import { portfolioData } from '@/data/portfolioData';
+import { ActiveView } from '@/components/Navbar';
 
-export function Hero() {
+interface HeroProps {
+  onNavigate?: (view: ActiveView) => void;
+  className?: string;
+}
+
+export function Hero({ onNavigate, className }: HeroProps = {}) {
   const { personal } = portfolioData;
 
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center pt-28 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className={
+        className ||
+        'relative flex items-center justify-center py-6 sm:py-8 overflow-hidden'
+      }
     >
-      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         
         {/* Left Column: Copy & CTAs */}
         <motion.div
@@ -61,7 +70,13 @@ export function Hero() {
           <div className="flex flex-wrap items-center gap-4 mb-8 w-full sm:w-auto">
             {/* Primary CTA */}
             <a
-              href="#projects"
+              href="/?view=projects"
+              onClick={(e) => {
+                if (onNavigate) {
+                  e.preventDefault();
+                  onNavigate('projects');
+                }
+              }}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/40 transition-all duration-200 active:scale-95"
             >
               <span>View My Work</span>
@@ -70,7 +85,13 @@ export function Hero() {
 
             {/* Secondary CTA */}
             <a
-              href="#contact"
+              href="/?view=contact"
+              onClick={(e) => {
+                if (onNavigate) {
+                  e.preventDefault();
+                  onNavigate('contact');
+                }
+              }}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-semibold text-slate-200 bg-slate-900/80 hover:bg-slate-800 border border-white/10 rounded-xl hover:border-white/20 transition-all duration-200 active:scale-95"
             >
               <span>Let's Work Together</span>

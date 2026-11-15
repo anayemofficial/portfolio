@@ -1,5 +1,6 @@
 export interface Project {
   id: string;
+  slug: string;
   title: string;
   tagline: string;
   description: string;
@@ -208,6 +209,7 @@ export const portfolioData: PortfolioData = {
   projects: [
     {
       id: 'madx-bd',
+      slug: 'madx',
       title: 'MADX — E-Commerce Platform',
       tagline: '★ FLAGSHIP PROJECT — Live Client Commercial Platform',
       description: 'Developed a commercial e-commerce platform for a client with a modern frontend, backend APIs, database integration, and e-commerce functionality.',
@@ -244,6 +246,7 @@ export const portfolioData: PortfolioData = {
     },
     {
       id: 'krishi-gold',
+      slug: 'krishi-gold',
       title: 'Krishi Gold — Rice Business Website',
       tagline: 'Professional Food Brand & Product Showcase Web Experience',
       description: 'Designed and developed a professional rice business website for a client, featuring a premium brand presentation, product showcase, and business-focused web experience.',
@@ -278,6 +281,7 @@ export const portfolioData: PortfolioData = {
     },
     {
       id: 'nayem-portfolio',
+      slug: 'personal-portfolio',
       title: 'Abdullah Al Nayem — Personal Portfolio',
       tagline: 'Modern Software Engineering Portfolio & Database-Backed Micro-Blog',
       description: 'Designed and developed my personal portfolio to showcase my professional profile, technical skills, projects, education, experience, and contact information.',
@@ -314,6 +318,7 @@ export const portfolioData: PortfolioData = {
     },
     {
       id: 'sketch2design-ai',
+      slug: 'sketch2design-ai',
       title: 'Sketch2Design-AI',
       tagline: 'AI-Powered Sketch-to-UI Code Conversion Engine',
       description: 'An AI-powered sketch-to-UI conversion application that transforms hand-drawn wireframes into usable front-end code, built with React, TypeScript, and Vite.',
@@ -347,6 +352,7 @@ export const portfolioData: PortfolioData = {
     },
     {
       id: 'photo-hub',
+      slug: 'photo-hub',
       title: 'Photo Hub',
       tagline: 'Web-Based Photo Gallery & Media Management System',
       description: 'Built a web-based photo gallery and management system with user authentication, backend APIs, and Supabase-based data storage.',
@@ -378,6 +384,7 @@ export const portfolioData: PortfolioData = {
     },
     {
       id: 'scientific-calculator',
+      slug: 'scientific-calculator',
       title: 'Scientific Calculator',
       tagline: 'Python GUI Calculator & Function Graph Plotting',
       description: 'Developed a GUI-based scientific calculator with Tkinter, supporting advanced mathematical operations and graph plotting.',
@@ -408,6 +415,7 @@ export const portfolioData: PortfolioData = {
     },
     {
       id: 'skin-disease-classification',
+      slug: 'skin-disease-classification',
       title: 'Privacy-Preserving Skin Disease Classification Using Federated Learning and Explainable Artificial Intelligence',
       tagline: 'Undergraduate Thesis — Federated Learning (Flower) & Explainable AI (Grad-CAM)',
       description: 'Undergraduate thesis research developing a privacy-preserving medical image classification framework across distributed client nodes using Federated Learning and Explainable AI.',
@@ -444,6 +452,7 @@ export const portfolioData: PortfolioData = {
     },
     {
       id: 'health-super-app',
+      slug: 'health-super-app',
       title: 'Health Super App',
       tagline: 'Comprehensive Digital Healthcare Platform Architecture',
       description: 'A concept for a comprehensive digital healthcare platform connecting patients, doctors, hospitals, appointments, medical records, AI assistance, and pharmacy services.',
@@ -713,3 +722,11 @@ export const portfolioData: PortfolioData = {
     },
   ],
 };
+
+export function getAllProjectSlugs(): string[] {
+  return portfolioData.projects.map((p) => p.slug);
+}
+
+export function getProjectBySlug(slug: string): Project | undefined {
+  return portfolioData.projects.find((p) => p.slug === slug || p.id === slug);
+}
