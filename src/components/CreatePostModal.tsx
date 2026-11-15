@@ -257,12 +257,12 @@ export function CreatePostModal({
               <div className="flex items-center gap-2.5">
                 <img
                   src={authorAvatar}
-                  alt="Abdullah Nayem"
+                  alt="Abdullah Al Nayem"
                   className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500/60 shadow-md"
                 />
                 <div>
                   <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <span>Abdullah Nayem</span>
+                    <span>Abdullah Al Nayem</span>
                     <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                       Author
                     </span>

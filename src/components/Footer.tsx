@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { ArrowUp, Mail, Briefcase, Code2 } from 'lucide-react';
 import { GithubIcon, LinkedinIcon, FacebookIcon, InstagramIcon } from '@/components/Icons';
 import { portfolioData } from '@/data/portfolioData';
@@ -106,10 +107,11 @@ export function Footer() {
       <div className="max-w-7xl mx-auto pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
         <p>© 2026 {personal.name}. All rights reserved.</p>
         <div className="flex items-center gap-6 font-mono text-[11px]">
-          <a href="#about" className="hover:text-indigo-400 transition-colors">About</a>
-          <a href="#projects" className="hover:text-indigo-400 transition-colors">Projects</a>
-          <a href="#blog" className="hover:text-indigo-400 transition-colors">Blog</a>
-          <a href="#contact" className="hover:text-indigo-400 transition-colors">Contact</a>
+          <Link href="/#about" className="hover:text-indigo-400 transition-colors">About</Link>
+          <Link href="/#projects" className="hover:text-indigo-400 transition-colors">Projects</Link>
+          <Link href="/cv" className="hover:text-indigo-400 transition-colors">CV</Link>
+          <Link href="/blog" className="hover:text-indigo-400 transition-colors">Blog</Link>
+          <Link href="/#contact" className="hover:text-indigo-400 transition-colors">Contact</Link>
         </div>
       </div>
     </footer>

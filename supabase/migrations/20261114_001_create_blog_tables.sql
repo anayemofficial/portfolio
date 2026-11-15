@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS public.posts (
   category text NOT NULL,
   mood text,
   tags text[] DEFAULT '{}'::text[],
-  author_name text NOT NULL DEFAULT 'Abdullah Nayem',
+  author_name text NOT NULL DEFAULT 'Abdullah Al Nayem',
   author_avatar text NOT NULL DEFAULT '/profile.jpg',
   author_role text NOT NULL DEFAULT 'Full-Stack Developer',
   published_at text NOT NULL,

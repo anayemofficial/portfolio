@@ -68,7 +68,7 @@ BEGIN
     'Testing',
     NULL,
     '{}'::text[],
-    'Abdullah Nayem',
+    'Abdullah Al Nayem',
     '/profile.jpg',
     'Full-Stack Developer',
     '2026-11-14',

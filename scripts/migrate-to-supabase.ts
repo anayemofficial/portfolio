@@ -89,7 +89,7 @@ async function runMigration() {
         category: post.category,
         mood: post.mood || null,
         tags: post.tags || [],
-        author_name: post.author?.name || 'Abdullah Nayem',
+        author_name: post.author?.name || 'Abdullah Al Nayem',
         author_avatar: post.author?.avatar || '/profile.jpg',
         author_role: post.author?.role || 'Full-Stack Developer',
         published_at: post.publishedAt,

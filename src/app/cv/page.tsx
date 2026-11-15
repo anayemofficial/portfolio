@@ -72,7 +72,7 @@ export default function CVPage() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-indigo-700 print:text-slate-800 mt-1.5">
-            <a href="https://anayem.com" target="_blank" rel="noopener noreferrer" className="hover:underline font-bold text-slate-900">
+            <a href="https://www.anayem.com" target="_blank" rel="noopener noreferrer" className="hover:underline font-bold text-slate-900">
               anayem.com
             </a>
             <span>•</span>
@@ -239,23 +239,23 @@ export default function CVPage() {
             </h3>
             <div className="space-y-3 text-xs pl-1 border-l-2 border-indigo-500/30 print:border-slate-300 ml-0.5">
 
-              {/* Abdullah Nayem Personal Portfolio */}
+              {/* Abdullah Al Nayem Personal Portfolio */}
               <div className="pl-2">
                 <div className="flex flex-wrap justify-between items-baseline gap-1">
                   <div className="flex items-center gap-1.5">
-                    <h4 className="font-bold text-slate-900">Abdullah Nayem — Personal Portfolio</h4>
+                    <h4 className="font-bold text-slate-900">Abdullah Al Nayem — Personal Portfolio</h4>
                     <span className="text-[10px] font-semibold text-sky-700 print:text-slate-700 bg-sky-50 print:bg-transparent px-1.5 py-0.2 rounded border border-sky-200 print:border-none">
                       Personal Project
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-[11px]">
                     <a
-                      href="https://anayem.com"
+                      href="https://www.anayem.com"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-indigo-700 print:text-slate-800 hover:underline font-semibold"
                     >
-                      https://anayem.com
+                      https://www.anayem.com
                     </a>
                     <span>•</span>
                     <a

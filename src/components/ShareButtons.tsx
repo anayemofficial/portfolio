@@ -16,11 +16,13 @@ export function ShareButtons({ url, title, excerpt, variant = 'inline' }: ShareB
   const [showDropdown, setShowDropdown] = useState(false);
 
   const getShareUrl = () => {
-    if (url) return url;
-    if (typeof window !== 'undefined') {
-      return `${window.location.origin}/blog`;
+    if (url) {
+      if (url.startsWith('/')) {
+        return `https://www.anayem.com${url}`;
+      }
+      return url;
     }
-    return 'https://abdullah-nayem.dev/blog';
+    return 'https://www.anayem.com/blog';
   };
 
   const shareUrl = getShareUrl();

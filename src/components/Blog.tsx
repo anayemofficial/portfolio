@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles,
@@ -55,7 +56,7 @@ export function Blog() {
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({});
 
-  // Author Mode state: only Abdullah Nayem can publish or delete
+  // Author Mode state: only Abdullah Al Nayem can publish or delete
   const [isAuthor, setIsAuthor] = useState(false);
   const [csrfToken, setCsrfToken] = useState<string>('');
   const [showAuthorLoginModal, setShowAuthorLoginModal] = useState(false);
@@ -409,10 +410,14 @@ export function Blog() {
     <section className="relative w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 font-sans">
       {/* 1. HERO COVER BANNER */}
       <div className="relative w-full h-48 sm:h-72 md:h-80 rounded-3xl overflow-hidden glass-card border border-white/10 shadow-2xl group">
-        <img
+        <Image
           src={coverPhoto}
-          alt="Blog Cover Banner"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          alt="Abdullah Al Nayem Blog Cover Banner"
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1024px"
+          unoptimized={coverPhoto.startsWith('data:')}
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#090d16] via-[#090d16]/40 to-transparent" />
 
@@ -437,7 +442,7 @@ export function Blog() {
             <div className="relative group/avatar">
               <img
                 src={profilePhoto}
-                alt="Abdullah Nayem"
+                alt="Abdullah Al Nayem"
                 className="w-28 h-28 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-[#090d16] shadow-2xl ring-2 ring-indigo-500/50 bg-slate-900"
               />
               <div className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#090d16] shadow-md" />
@@ -458,7 +463,7 @@ export function Blog() {
             <div className="space-y-1">
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                  Abdullah Nayem
+                  Abdullah Al Nayem
                 </h1>
                 <CheckCircle2 className="w-5 h-5 text-sky-400 fill-sky-400/20" />
                 <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[11px] font-mono font-medium">
@@ -494,7 +499,7 @@ export function Blog() {
               <button
                 onClick={() => setShowAuthorLoginModal(true)}
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/10 text-xs font-mono transition-all"
-                title="Only Abdullah Nayem can write or manage posts"
+                title="Only Abdullah Al Nayem can write or manage posts"
               >
                 <Lock className="w-3.5 h-3.5 text-slate-400" />
                 <span>Author Unlock</span>
@@ -907,7 +912,7 @@ export function Blog() {
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-white">Author Space Unlock</h4>
-                    <p className="text-[11px] text-slate-400 font-mono">Only Abdullah Nayem can publish</p>
+                    <p className="text-[11px] text-slate-400 font-mono">Only Abdullah Al Nayem can publish</p>
                   </div>
                 </div>
                 <button

@@ -44,7 +44,7 @@ export function About() {
                 <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-800">
                   <Image
                     src={personal.avatarUrl}
-                    alt={personal.name}
+                    alt="Abdullah Al Nayem - Software Engineer and Full-Stack Developer"
                     fill
                     className="object-cover object-top hover:scale-105 transition-transform duration-500"
                     priority

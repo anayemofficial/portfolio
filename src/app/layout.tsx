@@ -3,11 +3,11 @@ import './globals.css';
 import { portfolioData } from '@/data/portfolioData';
 
 export const metadata: Metadata = {
-  title: 'Abdullah Nayem | Full-Stack Developer & Data Science Enthusiast',
+  title: 'Abdullah Al Nayem | Full-Stack Developer & Data Science Enthusiast',
   description:
-    'Abdullah Nayem is a Full-Stack Developer and Software Engineering graduate specializing in modern web development, data science, AI, and scalable digital products.',
+    'Full-Stack Developer & Software Engineering graduate specializing in modern web development, data science, AI systems, and scalable digital products.',
   keywords: [
-    'Abdullah Nayem',
+    'Abdullah Al Nayem',
     'Full-Stack Developer',
     'Data Science',
     'AI Enthusiast',
@@ -18,29 +18,32 @@ export const metadata: Metadata = {
     'PyTorch Machine Learning',
     'Daffodil International University',
   ],
-  authors: [{ name: 'Abdullah Nayem' }],
-  creator: 'Abdullah Nayem',
-  metadataBase: new URL('https://abdullah-nayem.dev'),
+  authors: [{ name: 'Abdullah Al Nayem' }],
+  creator: 'Abdullah Al Nayem',
+  metadataBase: new URL('https://www.anayem.com'),
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: 'Abdullah Nayem | Full-Stack Developer & Data Science Enthusiast',
+    title: 'Abdullah Al Nayem | Full-Stack Developer & Data Science Enthusiast',
     description:
       'Full-Stack Developer building scalable web applications and intelligent digital experiences. Experienced in React, Next.js, Node.js, Python, and PyTorch.',
-    url: 'https://abdullah-nayem.dev',
-    siteName: 'Abdullah Nayem Portfolio',
+    url: 'https://www.anayem.com',
+    siteName: 'Abdullah Al Nayem Portfolio',
     images: [
       {
         url: '/profile.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Abdullah Nayem - Full-Stack Developer & Data Science Enthusiast',
+        width: 1024,
+        height: 1024,
+        alt: 'Abdullah Al Nayem - Full-Stack Developer & Software Engineer',
       },
     ],
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'Abdullah Nayem | Full-Stack Developer & Data Science Enthusiast',
+    card: 'summary',
+    title: 'Abdullah Al Nayem | Full-Stack Developer & Data Science Enthusiast',
     description:
       'Full-Stack Developer building scalable web applications and intelligent digital experiences.',
     images: ['/profile.jpg'],
@@ -63,19 +66,51 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // JSON-LD Structured Data Schema for Person
+  // JSON-LD Structured Data Schema (@graph combining Person, WebSite, and ProfilePage)
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: portfolioData.personal.name,
-    jobTitle: portfolioData.personal.title,
-    alumniOf: portfolioData.personal.university,
-    url: 'https://abdullah-nayem.dev',
-    sameAs: [
-      portfolioData.personal.socials.github,
-      portfolioData.personal.socials.linkedin,
+    '@graph': [
+      {
+        '@type': 'Person',
+        '@id': 'https://www.anayem.com/#person',
+        name: portfolioData.personal.name,
+        jobTitle: portfolioData.personal.title,
+        image: 'https://www.anayem.com/profile.jpg',
+        url: 'https://www.anayem.com',
+        alumniOf: {
+          '@type': 'EducationalOrganization',
+          name: portfolioData.personal.university,
+        },
+        sameAs: [
+          portfolioData.personal.socials.github,
+          portfolioData.personal.socials.linkedin,
+          portfolioData.personal.socials.facebook,
+          portfolioData.personal.socials.instagram,
+          portfolioData.personal.socials.fiverr,
+        ],
+        knowsAbout: portfolioData.personal.coreAreas,
+      },
+      {
+        '@type': 'WebSite',
+        '@id': 'https://www.anayem.com/#website',
+        url: 'https://www.anayem.com',
+        name: 'Abdullah Al Nayem Portfolio',
+        description:
+          'Full-Stack Developer building scalable web applications and intelligent digital experiences.',
+        publisher: {
+          '@id': 'https://www.anayem.com/#person',
+        },
+      },
+      {
+        '@type': 'ProfilePage',
+        '@id': 'https://www.anayem.com/#profilepage',
+        url: 'https://www.anayem.com',
+        name: 'Abdullah Al Nayem | Full-Stack Developer & Data Science Enthusiast',
+        mainEntity: {
+          '@id': 'https://www.anayem.com/#person',
+        },
+      },
     ],
-    knowsAbout: portfolioData.personal.coreAreas,
   };
 
   return (

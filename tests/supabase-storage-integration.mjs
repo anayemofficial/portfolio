@@ -69,7 +69,7 @@ async function runIntegrationAudit() {
     category: 'Tech & Code',
     mood: '🚀 Building',
     tags: ['Audit', 'Integration'],
-    author_name: 'Abdullah Nayem',
+    author_name: 'Abdullah Al Nayem',
     author_avatar: '/profile.jpg',
     author_role: 'Full-Stack Developer',
     published_at: 'Nov 14, 2026',

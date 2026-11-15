@@ -106,7 +106,7 @@ export interface PortfolioData {
 
 export const portfolioData: PortfolioData = {
   personal: {
-    name: 'Abdullah Nayem',
+    name: 'Abdullah Al Nayem',
     fullName: 'MD ABDULLAH AL NAYEM',
     title: 'Software Engineer | Full-Stack Developer | Data Science Enthusiast',
     subTitle: 'Full-Stack Developer building scalable web applications and intelligent digital experiences.',
@@ -278,7 +278,7 @@ export const portfolioData: PortfolioData = {
     },
     {
       id: 'nayem-portfolio',
-      title: 'Abdullah Nayem — Personal Portfolio',
+      title: 'Abdullah Al Nayem — Personal Portfolio',
       tagline: 'Modern Software Engineering Portfolio & Database-Backed Micro-Blog',
       description: 'Designed and developed my personal portfolio to showcase my professional profile, technical skills, projects, education, experience, and contact information.',
       detailedOverview: 'A high-performance personal portfolio and engineering platform (anayem.com) built with Next.js 16, React 19, TypeScript, and Tailwind CSS. Beyond a static showcase, it incorporates a production-grade micro-blog powered by Supabase PostgreSQL with Row Level Security (RLS), atomic stored procedures for duplicate-proof visitor likes, Upstash Redis distributed rate limiting, and an ATS-friendly printable CV system.',
@@ -308,7 +308,7 @@ export const portfolioData: PortfolioData = {
         'Implementing duplicate-proof atomic like increments under concurrent visitor traffic using PostgreSQL stored procedures.',
       ],
       currentStatus: 'Live Platform',
-      liveUrl: 'https://anayem.com',
+      liveUrl: 'https://www.anayem.com',
       githubUrl: 'https://github.com/anayemofficial/portfolio',
       badge: 'Full-Stack & PostgreSQL',
     },

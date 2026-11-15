@@ -5,15 +5,18 @@ import { Blog } from '@/components/Blog';
 import { Footer } from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Blog & Daily Logs | Abdullah Nayem',
+  title: 'Blog & Daily Logs | Abdullah Al Nayem',
   description:
-    'Daily life updates, political & social thoughts, tech notes, and personal reflections by Abdullah Nayem.',
+    'Daily life updates, political & social thoughts, tech notes, and personal reflections by Abdullah Al Nayem.',
+  alternates: {
+    canonical: '/blog',
+  },
   openGraph: {
-    title: 'Daily Thoughts & Blog | Abdullah Nayem',
+    title: 'Daily Thoughts & Blog | Abdullah Al Nayem',
     description:
-      'Daily life updates, political & social thoughts, tech notes, and personal reflections by Abdullah Nayem.',
-    url: 'https://abdullah-nayem.dev/blog',
-    siteName: 'Abdullah Nayem Blog',
+      'Daily life updates, political & social thoughts, tech notes, and personal reflections by Abdullah Al Nayem.',
+    url: 'https://www.anayem.com/blog',
+    siteName: 'Abdullah Al Nayem Blog',
     type: 'website',
   },
 };

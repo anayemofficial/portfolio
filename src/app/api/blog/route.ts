@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const auth = await verifyAdminRequest(request, { requireCsrfForMutations: true });
     if (!auth.authorized) {
       return NextResponse.json(
-        { success: false, error: auth.reason || 'Unauthorized: Only Abdullah Nayem can publish posts.' },
+        { success: false, error: auth.reason || 'Unauthorized: Only Abdullah Al Nayem can publish posts.' },
         { status: auth.statusCode || 401 }
       );
     }
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
       category: data.category,
       mood: data.mood as BlogMood | undefined,
       tags: data.tags,
-      authorName: 'Abdullah Nayem',
+      authorName: 'Abdullah Al Nayem',
       authorAvatar: data.authorAvatar,
       isPrivate: Boolean(data.isPrivate),
     });
@@ -96,7 +96,7 @@ export async function PATCH(request: Request) {
     const auth = await verifyAdminRequest(request, { requireCsrfForMutations: true });
     if (!auth.authorized) {
       return NextResponse.json(
-        { success: false, error: auth.reason || 'Unauthorized: Only Abdullah Nayem can change post settings.' },
+        { success: false, error: auth.reason || 'Unauthorized: Only Abdullah Al Nayem can change post settings.' },
         { status: auth.statusCode || 401 }
       );
     }
@@ -150,7 +150,7 @@ export async function PUT(request: Request) {
     const auth = await verifyAdminRequest(request, { requireCsrfForMutations: true });
     if (!auth.authorized) {
       return NextResponse.json(
-        { success: false, error: auth.reason || 'Unauthorized: Only Abdullah Nayem can edit posts.' },
+        { success: false, error: auth.reason || 'Unauthorized: Only Abdullah Al Nayem can edit posts.' },
         { status: auth.statusCode || 401 }
       );
     }
@@ -191,7 +191,7 @@ export async function DELETE(request: Request) {
     const auth = await verifyAdminRequest(request, { requireCsrfForMutations: true });
     if (!auth.authorized) {
       return NextResponse.json(
-        { success: false, error: auth.reason || 'Unauthorized: Only Abdullah Nayem can delete posts.' },
+        { success: false, error: auth.reason || 'Unauthorized: Only Abdullah Al Nayem can delete posts.' },
         { status: auth.statusCode || 401 }
       );
     }

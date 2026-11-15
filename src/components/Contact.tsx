@@ -251,7 +251,7 @@ export function Contact() {
                     <div>
                       <p className="font-bold text-base mb-1">Message Sent Successfully!</p>
                       <p className="text-xs text-emerald-300 leading-relaxed">
-                        Thank you for your message. It has been sent directly to <strong>{socials.email}</strong>. Abdullah will review and respond promptly.
+                        Thank you for your message. It has been sent directly to <strong>{socials.email}</strong>. Abdullah Al Nayem will review and respond promptly.
                       </p>
                     </div>
                   </div>

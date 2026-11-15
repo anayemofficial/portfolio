@@ -109,7 +109,7 @@ function mapRowToBlogPost(row: PostRow): BlogPost {
     mood: row.mood || undefined,
     tags: Array.isArray(row.tags) ? row.tags : [],
     author: {
-      name: row.author_name || 'Abdullah Nayem',
+      name: row.author_name || 'Abdullah Al Nayem',
       avatar: row.author_avatar || '/profile.jpg',
       role: row.author_role || 'Full-Stack Developer',
     },
@@ -231,7 +231,7 @@ export async function createBlogPost(data: {
       category: data.category || 'Daily Thoughts',
       mood: data.mood || null,
       tags: data.tags || [],
-      author_name: data.authorName || 'Abdullah Nayem',
+      author_name: data.authorName || 'Abdullah Al Nayem',
       author_avatar: data.authorAvatar || '/profile.jpg',
       author_role: 'Full-Stack Developer',
       published_at: formattedDate,
@@ -273,7 +273,7 @@ export async function createBlogPost(data: {
     mood: data.mood || '💭 Thought',
     tags: data.tags && data.tags.length > 0 ? data.tags : ['Thoughts', 'Daily Log'],
     author: {
-      name: data.authorName || 'Abdullah Nayem',
+      name: data.authorName || 'Abdullah Al Nayem',
       avatar: data.authorAvatar || '/profile.jpg',
       role: 'Full-Stack Developer & AI Enthusiast',
     },
