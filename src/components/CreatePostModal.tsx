@@ -16,6 +16,7 @@ import {
   Edit3,
 } from 'lucide-react';
 import { BlogPost, BlogCategory, BlogMood } from '@/data/initialBlogs';
+import { optimizeImageForUpload } from '@/lib/imageOptimization';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -59,6 +60,9 @@ export function CreatePostModal({
   const [category, setCategory] = useState<BlogCategory>('Daily Life Updates');
   const [mood, setMood] = useState<BlogMood>('☕ Daily Life');
   const [coverImage, setCoverImage] = useState<string>('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isOptimizing, setIsOptimizing] = useState<boolean>(false);
+  const [uploadStatus, setUploadStatus] = useState<string>('');
   const [isPrivate, setIsPrivate] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -82,47 +86,61 @@ export function CreatePostModal({
       setCategory(postToEdit.category || 'Daily Life Updates');
       setMood(postToEdit.mood || '☕ Daily Life');
       setCoverImage(postToEdit.coverImage || '');
+      setSelectedFile(null);
       setIsPrivate(Boolean(postToEdit.isPrivate));
       setErrorMessage('');
+      setUploadStatus('');
     } else {
       setContent('');
       setTitle('');
       setCategory('Daily Life Updates');
       setMood('☕ Daily Life');
       setCoverImage('');
+      setSelectedFile(null);
       setIsPrivate(false);
       setErrorMessage('');
+      setUploadStatus('');
     }
   }, [postToEdit, isOpen]);
 
   if (!isOpen) return null;
 
-  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setErrorMessage('Please select a valid image file (PNG, JPG, WebP).');
+      setErrorMessage('Please select a valid image file (JPEG, PNG, WebP, or GIF).');
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setErrorMessage('Image size is too large (maximum allowed is 5MB).');
-      return;
-    }
+    try {
+      setIsOptimizing(true);
+      setErrorMessage('');
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (typeof reader.result === 'string') {
-        setCoverImage(reader.result);
-        setErrorMessage('');
-      }
-    };
-    reader.readAsDataURL(file);
+      // Automatic client-side image optimization:
+      // Resizes oversized photos to max 1600px width/height while preserving aspect ratio,
+      // compresses JPEG/WebP to quality 0.85, and generates an optimized File and instant preview.
+      const result = await optimizeImageForUpload(file, {
+        maxWidth: 1600,
+        maxHeight: 1600,
+        quality: 0.85,
+        maxInputBytes: 20 * 1024 * 1024,
+      });
+
+      setSelectedFile(result.file);
+      setCoverImage(result.previewUrl);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to process image file.';
+      setErrorMessage(msg);
+    } finally {
+      setIsOptimizing(false);
+    }
   };
 
   const handleRemovePhoto = () => {
     setCoverImage('');
+    setSelectedFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -132,7 +150,7 @@ export function CreatePostModal({
     e.preventDefault();
     setErrorMessage('');
 
-    if (!content.trim() && !coverImage) {
+    if (!content.trim() && !coverImage && !selectedFile) {
       setErrorMessage('Please write something or attach a photo.');
       return;
     }
@@ -145,6 +163,43 @@ export function CreatePostModal({
       `${mood} - ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 
     try {
+      let finalCoverImageUrl: string | null = null;
+
+      // 1. If a new image file was selected, upload it to the secure cloud storage endpoint
+      if (selectedFile) {
+        setUploadStatus('Uploading photo to secure cloud storage...');
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        const uploadRes = await fetch('/api/blog/upload', {
+          method: 'POST',
+          headers: {
+            'x-csrf-token': csrfToken || '',
+          },
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok || !uploadData.success || (!uploadData.storagePath && !uploadData.url)) {
+          throw new Error(uploadData.error || 'Failed to upload photo to cloud storage.');
+        }
+
+        // Store canonical storage path (e.g. blog-images/post_123.jpg) in the database record
+        finalCoverImageUrl = uploadData.storagePath || uploadData.url;
+      } else if (
+        coverImage &&
+        (coverImage.startsWith('http') ||
+          coverImage.startsWith('/') ||
+          coverImage.startsWith('blog-images/') ||
+          coverImage.startsWith('storage:'))
+      ) {
+        // Preserve existing storage path or URL during edit
+        finalCoverImageUrl = coverImage;
+      }
+
+      setUploadStatus(isEditMode ? 'Updating post...' : 'Publishing thought...');
+
+      // 2. Submit post record to /api/blog with the image URL (clean, tiny JSON payload)
       const bodyPayload = isEditMode
         ? {
             id: postToEdit!.id,
@@ -152,7 +207,7 @@ export function CreatePostModal({
             category,
             mood,
             content: content.trim(),
-            coverImage: coverImage || null,
+            coverImage: finalCoverImageUrl,
             tags: [category, mood.replace(/^[^\s]+\s/, '')],
             isPrivate,
           }
@@ -161,7 +216,7 @@ export function CreatePostModal({
             category,
             mood,
             content: content.trim(),
-            coverImage: coverImage || undefined,
+            coverImage: finalCoverImageUrl || undefined,
             tags: [category, mood.replace(/^[^\s]+\s/, '')],
             isPrivate,
             authorAvatar,
@@ -191,12 +246,15 @@ export function CreatePostModal({
       setContent('');
       setTitle('');
       setCoverImage('');
+      setSelectedFile(null);
+      setUploadStatus('');
       onClose();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error publishing post';
       setErrorMessage(message);
     } finally {
       setIsSubmitting(false);
+      setUploadStatus('');
     }
   };
 
@@ -355,6 +413,20 @@ export function CreatePostModal({
               </div>
             )}
 
+            {/* Image Optimization / Upload Status Feedback */}
+            {isOptimizing && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-300 text-xs font-mono">
+                <Sparkles className="w-3.5 h-3.5 text-sky-400 animate-pulse" />
+                <span>Optimizing image dimensions and file size...</span>
+              </div>
+            )}
+            {uploadStatus && !isOptimizing && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-mono">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-spin" />
+                <span>{uploadStatus}</span>
+              </div>
+            )}
+
             {/* Hidden Native File Input for PC Upload */}
             <input
               type="file"
@@ -369,7 +441,8 @@ export function CreatePostModal({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-mono transition-all ${
+                disabled={isSubmitting || isOptimizing}
+                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-mono transition-all disabled:opacity-50 ${
                   coverImage
                     ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                     : 'bg-slate-950 hover:bg-slate-800 text-slate-300 hover:text-white border-white/10'
@@ -381,11 +454,13 @@ export function CreatePostModal({
 
               <button
                 type="submit"
-                disabled={isSubmitting || (!content.trim() && !coverImage)}
+                disabled={isSubmitting || isOptimizing || (!content.trim() && !coverImage && !selectedFile)}
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-sky-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-40 active:scale-95"
               >
                 {isSubmitting ? (
-                  <span>{isEditMode ? 'Saving...' : 'Publishing...'}</span>
+                  <span>{uploadStatus || (isEditMode ? 'Saving...' : 'Publishing...')}</span>
+                ) : isOptimizing ? (
+                  <span>Optimizing...</span>
                 ) : (
                   <>
                     <Send className="w-3.5 h-3.5" />

@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { BlogPost, BlogComment, initialBlogPosts } from '@/data/initialBlogs';
 import { getSupabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
+import { normalizeStoragePath, resolveSignedCoverImage } from '@/lib/imageStorage';
 
 const DATA_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'blogPosts.json');
 
@@ -193,7 +194,7 @@ export async function createBlogPost(data: {
   title: string;
   excerpt?: string;
   content: string;
-  coverImage?: string;
+  coverImage?: string | null;
   category?: string;
   mood?: BlogPost['mood'];
   tags?: string[];
@@ -221,13 +222,14 @@ export async function createBlogPost(data: {
   });
 
   if (isSupabaseConfigured() && supabase) {
+    const normalizedCover = normalizeStoragePath(data.coverImage);
     const insertPayload = {
       id,
       slug,
       title: data.title,
       excerpt: data.excerpt || (data.content.length > 140 ? data.content.slice(0, 140) + '...' : data.content),
       content: data.content,
-      cover_image: data.coverImage || null,
+      cover_image: normalizedCover,
       category: data.category || 'Daily Thoughts',
       mood: data.mood || null,
       tags: data.tags || [],
@@ -251,7 +253,9 @@ export async function createBlogPost(data: {
       throw new Error(`Database error creating post: ${error.message}`);
     }
 
-    return mapRowToBlogPost(inserted as PostRow);
+    const post = mapRowToBlogPost(inserted as PostRow);
+    post.coverImage = await resolveSignedCoverImage(post.coverImage);
+    return post;
   }
 
   if (isProd) {
@@ -317,7 +321,9 @@ export async function updateBlogPost(
       updatePayload.read_time = `${Math.max(1, Math.ceil(wordCount / 200))} min read`;
     }
     if (data.excerpt !== undefined) updatePayload.excerpt = data.excerpt;
-    if (data.coverImage !== undefined) updatePayload.cover_image = data.coverImage;
+    if (data.coverImage !== undefined) {
+      updatePayload.cover_image = normalizeStoragePath(data.coverImage);
+    }
     if (data.category !== undefined) updatePayload.category = data.category;
     if (data.mood !== undefined) updatePayload.mood = data.mood;
     if (data.tags !== undefined) updatePayload.tags = data.tags;
@@ -338,7 +344,9 @@ export async function updateBlogPost(
       return { success: false };
     }
 
-    return { success: true, post: mapRowToBlogPost(updated as PostRow) };
+    const post = mapRowToBlogPost(updated as PostRow);
+    post.coverImage = await resolveSignedCoverImage(post.coverImage);
+    return { success: true, post };
   }
 
   if (isProd) {

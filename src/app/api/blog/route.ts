@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { verifyAdminRequest } from '@/lib/auth';
 import { getAllBlogPosts, createBlogPost, deleteBlogPost, togglePostPrivacy, updateBlogPost } from '@/lib/blogStorage';
 import { postCreateSchema, postPatchSchema, postUpdateSchema, isPayloadSizeAllowed } from '@/lib/validation';
+import { attachSignedUrlsToPosts } from '@/lib/imageStorage';
 import { BlogCategory, BlogMood } from '@/data/initialBlogs';
 
 export async function GET(request: Request) {
@@ -14,10 +15,13 @@ export async function GET(request: Request) {
       ? allPosts
       : allPosts.filter((post) => !post.isPrivate);
 
+    // Attach fresh temporary signed URLs (15 minutes) for authorized visible posts only
+    const postsWithSignedUrls = await attachSignedUrlsToPosts(visiblePosts);
+
     return NextResponse.json(
       {
         success: true,
-        posts: visiblePosts,
+        posts: postsWithSignedUrls,
         isAdmin: auth.authorized,
       },
       { status: 200 }

@@ -1,7 +1,7 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
-export type RateLimitCategory = 'contact' | 'comment' | 'like' | 'login';
+export type RateLimitCategory = 'contact' | 'comment' | 'like' | 'login' | 'upload';
 
 interface RateLimitConfig {
   maxRequests: number;
@@ -14,6 +14,7 @@ const POLICIES: Record<RateLimitCategory, RateLimitConfig> = {
   comment: { maxRequests: 5, windowMs: 5 * 60 * 1000, upstashWindow: '5 m' },   // 5 comments per 5 min
   like: { maxRequests: 30, windowMs: 60 * 1000, upstashWindow: '1 m' },         // 30 likes per 1 min
   login: { maxRequests: 5, windowMs: 15 * 60 * 1000, upstashWindow: '15 m' },   // 5 login attempts per 15 min
+  upload: { maxRequests: 20, windowMs: 10 * 60 * 1000, upstashWindow: '10 m' }, // 20 uploads per 10 min
 };
 
 export interface RateLimitResult {
@@ -87,6 +88,11 @@ function getUpstashLimiters(): Record<RateLimitCategory, Ratelimit> | null {
           redis,
           limiter: Ratelimit.slidingWindow(POLICIES.login.maxRequests, POLICIES.login.upstashWindow),
           prefix: 'rl:login',
+        }),
+        upload: new Ratelimit({
+          redis,
+          limiter: Ratelimit.slidingWindow(POLICIES.upload.maxRequests, POLICIES.upload.upstashWindow),
+          prefix: 'rl:upload',
         }),
       };
       redisInitialized = true;

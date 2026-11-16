@@ -29,6 +29,11 @@ export function isValidSafeUrl(urlString?: string | null): boolean {
     return true;
   }
 
+  // Allow storage path format: blog-images/<safe-filename> or storage:blog-images/<safe-filename>
+  if (/^(?:storage:)?blog-images\/[a-zA-Z0-9_\-\.]+$/.test(trimmed)) {
+    return true;
+  }
+
   try {
     const parsed = new URL(trimmed);
     // Allow https protocols and local dev http
@@ -139,6 +144,7 @@ export const postCreateSchema = z.object({
     .string()
     .max(1000, 'Cover image URL cannot exceed 1000 characters.')
     .optional()
+    .nullable()
     .refine((url) => isValidSafeUrl(url), {
       message: 'Cover image URL must be a valid safe URL (https or relative path).',
     }),
@@ -162,7 +168,14 @@ export const postPatchSchema = z.object({
   category: z.string().trim().max(60).optional(),
   mood: z.string().trim().max(60).optional(),
   tags: z.union([z.array(z.string()), z.string()]).optional(),
-  coverImage: z.string().max(1000).optional(),
+  coverImage: z
+    .string()
+    .max(1000)
+    .optional()
+    .nullable()
+    .refine((url) => isValidSafeUrl(url), {
+      message: 'Cover image URL must be a valid safe URL.',
+    }),
   isPrivate: z.boolean().optional(),
 });
 
@@ -175,7 +188,14 @@ export const postUpdateSchema = z.object({
   category: z.string().trim().max(60).optional(),
   mood: z.string().trim().max(60).optional(),
   tags: z.union([z.array(z.string()), z.string()]).optional(),
-  coverImage: z.string().max(1000).optional(),
+  coverImage: z
+    .string()
+    .max(1000)
+    .optional()
+    .nullable()
+    .refine((url) => isValidSafeUrl(url), {
+      message: 'Cover image URL must be a valid safe URL.',
+    }),
   isPrivate: z.boolean().optional(),
 });
 
